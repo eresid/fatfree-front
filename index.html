@@ -1,0 +1,152 @@
+<html lang="en-gb" dir="ltr" class="uk-height-1-1">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <!-- <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"> -->
+    <!-- <link rel="apple-touch-icon-precomposed" href="images/apple-touch-icon.png"> -->
+    <link rel="stylesheet" href="css/uikit.min.css">
+    <link rel="stylesheet" href="css/uikit.docs.min.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+</head>
+
+<body class="uk-height-1-1">
+
+    <div class="uk-vertical-align uk-text-center uk-height-1-1">
+        <div class="uk-vertical-align-middle" style="width: 250px;">
+
+            <form class="uk-panel uk-panel-box uk-form">
+                <div class="uk-form-row">
+                    <input id="username_field" class="uk-width-1-1 uk-form-large" type="text" placeholder="Username">
+                </div>
+                <div id="username_error_label" class="uk-text-danger"></div>
+
+                <div class="uk-form-row uk-form-password uk-margin-top">
+                    <input id="password_field" class="uk-width-1-1 uk-form-large" type="password" placeholder="Password" maxlength="15">
+                </div>
+                <div id="password_error_label" class="uk-text-danger"></div>
+
+                <div class="uk-form-row uk-margin-top">
+                    <a id="login_button" class="uk-width-1-1 uk-button uk-button-primary uk-button-large" href="#">Login</a>
+                </div>
+                <div id="progress_bar" uk-spinner></div>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+
+<script>
+
+    function showProgress(show) {
+        var progressBar = document.getElementById("progress_bar");
+        progressBar.style.display = show ? 'block' : 'none';
+
+        var loginButton = document.getElementById('login_button');
+        loginButton.style.display = show ? 'none' : 'block';
+    }
+
+</script>
+
+<script>
+    var usernameValue = document.getElementById('username_field');
+    var usernameError = document.getElementById('username_error_label');
+
+    usernameValue.oninput = function () {
+        usernameValue.classList.remove("uk-form-danger");
+        usernameError.innerHTML = '';
+    };
+
+    var passwordValue = document.getElementById('password_field');
+    var passworError = document.getElementById('password_error_label');
+
+    passwordValue.oninput = function () {
+        passwordValue.classList.remove("uk-form-danger");
+        passworError.innerHTML = '';
+    };
+
+    showProgress(false);
+</script>
+
+<script>
+    (function () {
+        var usernameInput = document.getElementById('username_field');
+        var passwordInput = document.getElementById('password_field');
+
+        var localStorage = window.localStorage;
+
+        document.getElementById('login_button').onclick = function () {
+
+            if (!validateEmail(usernameInput) || !validatePassword(passwordInput)) {
+                return;
+            }
+
+            showProgress(true);
+
+            axios
+                .post('http://diet-divination.herokuapp.com/api/v1/admin/auth', {
+                    email: usernameInput.value,
+                    password: passwordInput.value
+                })
+                .then(function (res) {
+                    localStorage.setItem('token', res.data.token);
+                    window.open('message.html', '_self');
+                })
+                .catch(function (err) {
+                    UIkit.notification(err.response.data.message, { status: 'danger' });
+                    //UIkit.modal.alert(err.response.data.message);
+                })
+                .then(function () {
+                    showProgress(false);
+                });
+        };
+    })();
+
+    function validateEmail(input) {
+        var usernameError = document.getElementById('username_error_label');
+
+        if (input.value == "") {
+            input.classList.add("uk-form-danger");
+            usernameError.innerHTML = 'Username cannot be empty!';
+            return false;
+        }
+
+        if (!validateEmailRegex(input.value)) {
+            input.classList.add("uk-form-danger");
+            usernameError.innerHTML = 'Please, enter correct email!';
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateEmailRegex(email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    function validatePassword(input) {
+        var passwordError = document.getElementById('password_error_label');
+
+        if (input.value == "") {
+            input.classList.add("uk-form-danger");
+            passwordError.innerHTML = 'Password cannot be empty!';
+            return false;
+        }
+
+        if (input.value.length < 4) {
+            input.classList.add("uk-form-danger");
+            passwordError.innerHTML = 'Password must be at least 5 symbols!';
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+</html>

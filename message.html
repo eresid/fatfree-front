@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Title</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="tabs.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main send">
+        <h2>SEND YOUR MESSAGE</h2>
+        <div class="send-message">
+            <input  id="input_title" type="text" name="title" placeholder="Title">
+             <!-- <input  id="input_message" type="text" name="message.js" placeholder="Message">-->
+             <textarea id="input_message" name="comment" placeholder="Message"></textarea>
+             <select  name="message">
+                 <option id="diet" value="">Diet</option>
+                 <option id="divination" value="">Divination</option>
+             </select>
+             <button class="send-button" onclick="sendMessage()" type="button">Send push</button>
+             <div id="result2"></div>
+        </div>
+    </div>
+
+</div>
+<script>
+    function sendMessage() {
+        var token = localStorage.getItem('token');
+
+        if (token == null) {
+            alert("Please log in before");
+            return;
+        }
+
+
+        let config = {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            }
+        }
+
+        let data = {
+            title: "This is title...",
+            text: "This is text...",
+            app_name: "Diet"
+        }
+
+        var output2 = document.getElementById('result2');
+        axios.post('http://diet-divination.herokuapp.com/api/v1/admin/push', data, config)
+            .then(function (res) {
+                output2.innerHTML = "Message Sent!";
+            })
+            .catch(function (err) {
+                output2.innerHTML = err.message;
+            });
+    };
+
+</script>
+</body>
+</html>
